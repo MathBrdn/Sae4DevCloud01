@@ -1,0 +1,66 @@
+database:
+
+-- =========================================================================
+-- SCRIPT DE CRÉATION DE LA BASE DE DONNÉES COMMUNE (SAÉ 4.DEVCLOUD.01)
+-- =========================================================================
+
+-- 1. Table USER (Gérée principalement par Auth-Service)
+CREATE TABLE "user" (
+    "id" SERIAL PRIMARY KEY,
+    "username" VARCHAR(150) UNIQUE NOT NULL,
+    "password" VARCHAR(255) NOT NULL, -- Stockera le hash Django
+    "email" VARCHAR(254) UNIQUE NOT NULL,
+    "role" VARCHAR(10) NOT NULL CHECK ("role" IN ('CLIENT', 'AGENT')),
+    "date_joined" TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL
+);
+
+-- 2. Table COMPTE (Gérée par Bank/App-Service)
+CREATE TABLE "compte" (
+    "id" SERIAL PRIMARY KEY,
+    "numero_compte" VARCHAR(34) UNIQUE NOT NULL, -- Format IBAN max 34 caractères
+    "type_compte" VARCHAR(20) NOT NULL,          -- 'COURANT', 'EPARGNE', etc.
+    "solde" NUMERIC(12, 2) DEFAULT 0.00 NOT NULL,
+    "date_creation" TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    "client_id" INTEGER NOT NULL,
+    CONSTRAINT "fk_compte_client" FOREIGN KEY ("client_id") REFERENCES "user" ("id") ON DELETE CASCADE
+);
+
+-- 3. Table OPERATION (Gérée par Bank/App-Service)
+CREATE TABLE "operation" (
+    "id" SERIAL PRIMARY KEY,
+    "type_operation" VARCHAR(15) NOT NULL CHECK ("type_operation" IN ('DEPOT', 'RETRAIT', 'VIREMENT')),
+    "montant" NUMERIC(12, 2) NOT NULL CHECK ("montant" > 0),
+    "date_operation" TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    "compte_source_id" INTEGER NOT NULL,
+    "compte_destination_id" INTEGER, -- NULL si Dépôt ou Retrait simple
+    CONSTRAINT "fk_op_compte_source" FOREIGN KEY ("compte_source_id") REFERENCES "compte" ("id") ON DELETE CASCADE,
+    CONSTRAINT "fk_op_compte_dest" FOREIGN KEY ("compte_destination_id") REFERENCES "compte" ("id") ON DELETE SET NULL
+);
+
+-- 4. Table DEMANDE_VALIDATION (Gérée par Agent-Service)
+CREATE TABLE "demande_validation" (
+    "id" SERIAL PRIMARY KEY,
+    "statut" VARCHAR(15) DEFAULT 'EN_ATTENTE' NOT NULL CHECK ("statut" IN ('EN_ATTENTE', 'VALIDE', 'REFUSE')),
+    "date_demande" TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    "operation_id" INTEGER UNIQUE NOT NULL, -- Une demande concerne une seule opération
+    "agent_id" INTEGER,                    -- NULL tant qu'aucun agent n'a traité la demande
+    CONSTRAINT "fk_demande_operation" FOREIGN KEY ("operation_id") REFERENCES "operation" ("id") ON DELETE CASCADE,
+    CONSTRAINT "fk_demande_agent" FOREIGN KEY ("agent_id") REFERENCES "user" ("id") ON DELETE SET NULL
+);
+
+-- 5. Table LOG (Optionnelle - Pour le sujet FI difficile via service de messagerie)
+CREATE TABLE "application_log" (
+    "id" SERIAL PRIMARY KEY,
+    "service_emetteur" VARCHAR(50) NOT NULL, -- 'auth-service', 'bank-service', etc.
+    "type_log" VARCHAR(10) NOT NULL,        -- 'INFO', 'WARNING', 'ERROR'
+    "message" TEXT NOT NULL,
+    "timestamp" TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL
+);
+
+-- =========================================================================
+-- CRÉATION D'INDEX POUR OPTIMISER LES REQUÊTES DES AGENTS ET CLIENTS
+-- =========================================================================
+CREATE INDEX "idx_compte_client" ON "compte" ("client_id");
+CREATE INDEX "idx_operation_source" ON "operation" ("compte_source_id");
+CREATE INDEX "idx_demande_statut" ON "demande_validation" ("statut");
+CREATE INDEX "idx_log_timestamp" ON "application_log" ("timestamp");
