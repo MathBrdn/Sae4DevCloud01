@@ -1,0 +1,41 @@
+!DOCTYPE html>
+<html lang="fr">
+<head>
+    {% load static %}
+    <link rel="stylesheet" href="{% static '/app/style.css' %}">
+    <meta charset="UTF-8">
+    <title>Bienvenue</title>
+</head>
+<body>
+    <header>
+        <h1>Demande de suppression de compte</h1>
+    </header>
+    <p>Vous êtes sur le point de demander la suppression du compte suivant :</p>
+    <ul>
+        <li><strong>Nom du compte :</strong> {{ compte.nom }}</li>
+        <li><strong>Numéro de compte :</strong> {{ compte.numero_compte }}</li>
+        <li><strong>Solde actuel :</strong> {{ compte.solde }} €</li>
+    </ul>
+    <p>
+        <strong>Attention :</strong> Cette action enverra une demande de clôture à l'administration. 
+        Le compte ne sera définitivement supprimé qu'après validation par un agent.
+    </p>
+
+    <form action="/app/{{ user_id }}/delete/{{ compte.id }}/" method="POST">
+        {% csrf_token %}
+        
+        <input type="hidden" name="_method" value="DELETE">
+        
+        <label for="motif">Raison de la clôture (optionnel) :</label><br>
+        <textarea name="motif" id="motif" rows="3" cols="40" placeholder="Ex: Je n'ai plus besoin de ce compte..."></textarea>
+        <br><br>
+        <button>
+            Confirmer et envoyer la demande
+        </button>
+        <a href="/app/{{ user_id }}/" style="margin-left: 15px;">Annuler</a>
+    </form>
+    <aside>
+        <p>&copy; {{ now|date:"Y" }} MULLER Yoann et BRODIN Mathias. Tous droits réservés.</p>
+    </aside>
+</body>
+</html>

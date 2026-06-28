@@ -1,0 +1,25 @@
+!DOCTYPE html>
+<html lang="fr">
+<head>
+    {% load static %}
+    <link rel="stylesheet" href="{% static '/app/style.css' %}">
+    <meta charset="UTF-8">
+    <title>Bienvenue</title>
+</head>
+<body>
+    <header>
+        <h1>Créer un nouveau compte bancaire</h1>
+    </header>
+    <p>Remplissez ce formulaire pour envoyer une demande de création à l'administrateur.</p>
+    <form action="/app/{{ user_id }}/create/" method="POST" method="POST">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Envoyer la demande de création</button>
+    </form>
+    <br>
+    <a href="/app/{{ user_id }}/">Retour à mon espace</a>
+    <aside>
+        <p>&copy; {{ now|date:"Y" }} MULLER Yoann et BRODIN Mathias. Tous droits réservés.</p>
+    </aside>
+</body>
+</html>

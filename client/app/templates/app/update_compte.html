@@ -1,0 +1,26 @@
+!DOCTYPE html>
+<html lang="fr">
+<head>
+    {% load static %}
+    <link rel="stylesheet" href="{% static '/app/style.css' %}">
+    <meta charset="UTF-8">
+    <title>Bienvenue</title>
+</head>
+<body>
+    <header>
+        <h1>Modifier le compte n°{{ compte_id }}</h1>
+    </header>
+    <p>Toute modification devra être validée par un administrateur avant de prendre effet.</p>
+    <form action="/app/{{ user_id }}/update/{{ compte_id }}/" method="POST">
+        {% csrf_token %}
+        <input type="hidden" name="_method" value="PUT">
+        {{ form.as_p }}
+        <button type="submit">Demander la modification</button>
+    </form>
+    <br>
+    <a href="/app/{{ user_id }}/">Annuler et retourner à mon espace</a>
+    <aside>
+        <p>&copy; {{ now|date:"Y" }} MULLER Yoann et BRODIN Mathias. Tous droits réservés.</p>
+    </aside>
+</body>
+</html>

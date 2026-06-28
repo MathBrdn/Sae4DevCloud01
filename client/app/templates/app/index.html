@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    {% load static %}
+    <link rel="stylesheet" href="{% static '/app/style.css' %}">
+    <meta charset="UTF-8">
+    <title>Bienvenue</title>
+</head>
+<body>
+    <header>
+        <h1>Bienvenue sur votre espace, {{ client.username }}</h1>
+    </header>
+    <p>ID Client : {{ client.id }}</p>
+    <a href="/app/{{ client.id }}/create/">
+        + Demander l'ouverture d'un compte
+    </a>
+    <h2>Mes Comptes Bancaires Validés</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Numéro de compte</th>
+                <th>Nom du compte</th>
+                <th>Solde</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for compte in comptes %}
+            <tr>
+                <td>{{ compte.numero_compte }}</td>
+                <td>{{ compte.nom }}</td>
+                <td>{{ compte.solde }} €</td>
+                <td>
+                    <a href="/app/{{ client.id }}/compte/{{ compte.id }}/">[Voir]</a>
+                    <a href="/app/{{ client.id }}/update/{{ compte.id }}/">[Modifier]</a>
+                    <a href="/app/{{ client.id }}/delete/{{ compte.id }}/">[Supprimer]</a>
+                    <form action="{% url 'delete_compte' client.id compte.id %}" method="POST" style="display:inline;">
+                        {% csrf_token %}
+                        <input type="hidden" name="_method" value="DELETE">
+                        <input type="hidden" name="motif" value="Clôture demandée par le client">
+                        <button type="submit" onclick="return confirm('Êtes-vous sûr de vouloir demander la suppression de ce compte ?');">
+                            [Supprimer]
+                        </button>
+                    </form>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="4">Vous n'avez aucun compte actif ou validé pour le moment.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <aside>
+        <p>&copy; {{ now|date:"Y" }} MULLER Yoann et BRODIN Mathias. Tous droits réservés.</p>
+    </aside>
+</body>
+</html>

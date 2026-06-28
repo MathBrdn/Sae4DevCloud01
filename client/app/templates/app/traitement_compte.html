@@ -1,0 +1,26 @@
+!DOCTYPE html>
+<html lang="fr">
+<head>
+    {% load static %}
+    <link rel="stylesheet" href="{% static '/app/style.css' %}">
+    <meta charset="UTF-8">
+    <title>Bienvenue</title>
+</head>
+<body>
+    <header>
+        <h1>Détails du compte n°{{ compte.id }}</h1>
+    </header>
+    <ul>
+        <li><strong>Numéro de compte :</strong> {{ compte.numero_compte }}</li>
+        <li><strong>Nom du compte :</strong> {{ compte.nom }}</li>
+        <li><strong>Solde actuel :</strong> {{ compte.solde }} €</li>
+        <li><strong>Statut de validation :</strong> {{ compte.statut }}</li>
+    </ul>
+    <nav>
+        <a href="/app/{{ compte.client.id }}/">Retour à mon espace</a>
+    </nav>
+    <aside>
+        <p>&copy; {{ now|date:"Y" }} MULLER Yoann et BRODIN Mathias. Tous droits réservés.</p>
+    </aside>
+</body>
+</html>

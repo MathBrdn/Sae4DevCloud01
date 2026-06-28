@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    {% load static %}
+    <link rel="stylesheet" href="{% static '/app/style.css' %}">
+    <meta charset="UTF-8">
+    <title>Bienvenue</title>
+</head>
+<body>
+    <header>
+        <h1>Bienvenue</h1>
+    </header>
+    <form method="get" action="/app/" style="display: inline;">
+        <button type="submit"><h2>Retour</h2></button>
+    </form>
+    <h2>Connexion</h2>
+    {% if error %}
+        <p style="color: red;"><strong>Erreur :</strong> {{ error }}</p>
+    {% endif %}
+    <form method="POST">
+        {% csrf_token %}
+        <div>
+            <label for="username">Nom d'utilisateur :</label>
+            <input type="text" id="username" name="username" required>
+        </div>
+        <br>
+        <div>
+            <label for="password">Mot de passe :</label>
+            <input type="password" id="password" name="password" required>
+        </div>
+        <br>
+        <button type="submit">Se connecter</button>
+    </form>
+    <p>Pas encore de compte ? <a href="/app/inscription">Inscrivez-vous ici</a>.</p>
+    <aside>
+        <p>&copy; {{ now|date:"Y" }} MULLER Yoann et BRODIN Mathias. Tous droits réservés.</p>
+    </aside>
+</body>
+</html>

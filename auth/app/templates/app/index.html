@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    {% load static %}
+    <link rel="stylesheet" href="{% static '/app/style.css' %}">
+    <meta charset="UTF-8">
+    <title>Bienvenue</title>
+</head>
+<body>
+    <header>
+        <h1>Bienvenue</h1>
+    </header>
+    <form method="get" action="/app/inscription" style="display: inline;">
+        <button type="submit"><h2>S'inscrire</h2></button>
+    </form>
+    <form method="get" action="/app/login" style="display: inline;">
+        <button type="submit"><h2>Se connecter</h2></button>
+    </form>
+    <aside>
+        <p>&copy; {{ now|date:"Y" }} MULLER Yoann et BRODIN Mathias. Tous droits réservés.</p>
+    </aside>
+</body>
+</html>
