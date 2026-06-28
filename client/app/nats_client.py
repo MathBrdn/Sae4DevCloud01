@@ -4,7 +4,7 @@ import json
 
 async def publier_evenement_nats(action_type, user_id, details_dict):
     """
-    Envoie un message standardisé sur le sujet NATS 'demandes.comptes'
+    Envoie un message standardisé sur le sujet NATS 'admin.alerts'
     """
     try:
         # Connexion au conteneur NATS via son nom de service docker-compose
@@ -18,7 +18,8 @@ async def publier_evenement_nats(action_type, user_id, details_dict):
         }
         
         # Envoi des données converties en octets (bytes)
-        await nc.publish("demandes.comptes", json.dumps(payload).encode('utf-8'))
+        # ⚠️ CORRECTION ICI : Remplacement de "demandes.comptes" par "admin.alerts"
+        await nc.publish("admin.alerts", json.dumps(payload).encode('utf-8'))
         await nc.flush()
         await nc.close()
     except Exception as e:

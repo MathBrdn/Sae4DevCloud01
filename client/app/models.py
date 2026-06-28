@@ -5,10 +5,10 @@ class Compte(models.Model):
     nom = models.CharField(max_length=100, default="Compte sans nom")
     solde = models.DecimalField(max_digits=12, decimal_places=2, default=0)
     statut = models.CharField(max_length=50, default="EN_ATTENTE")
-    client = models.ForeignKey(
-        "auth.User",
-        on_delete=models.CASCADE
-    )
+    client = models.ForeignKey("auth.User", on_delete=models.CASCADE)
+    class Meta:
+        db_table = 'compte'
+        managed = False
 
 class User(models.Model):
     class Role(models.TextChoices):

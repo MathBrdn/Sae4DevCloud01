@@ -8,8 +8,19 @@
 </head>
 <body>
     <header>
-        <h1>Bienvenue</h1>
+        <h1>Liste des demandes clients en attente (via NATS)</h1>
     </header>
+    {% for demande in demandes %}
+        <div class="demande-card">
+            <p>Utilisateur {{ demande.client_id }} - {{ demande.action }}</p>
+            <p>Détails : {{ demande.data_payload }}</p>
+            
+            <a href="/app/demande/accepter/{{ demande.id }}/" class="btn btn-success">Accepter</a>
+            <a href="/app/demande/refuser/{{ demande.id }}/" class="btn btn-danger">Refuser</a>
+        </div>
+    {% empty %}
+        <p>Aucune demande pour le moment.</p>
+    {% endfor %}
     <aside>
         <p>&copy; {{ now|date:"Y" }} MULLER Yoann et BRODIN Mathias. Tous droits réservés.</p>
     </aside>

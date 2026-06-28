@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   db:
     image: mariadb:10.11
@@ -43,6 +41,18 @@ services:
     networks:
       - main_network
 
+  admin-worker:
+    build:
+      context: ./admin
+      dockerfile: Dockerfile
+    restart: always
+    command: python manage.py listen_nats
+    depends_on:
+      - nats
+      - db
+    networks:
+      - main_network
+
   client:
     build:
       context: ./client
@@ -54,6 +64,19 @@ services:
     networks:
       - main_network
 
+  # --- LE WORKER NATS DU CLIENT AJOUTÉ ICI ---
+  client-worker:
+    build:
+      context: ./client  # Utilise le dossier et le Dockerfile du client
+      dockerfile: Dockerfile
+    restart: always
+    command: python manage.py listen_nats  # Lance la commande d'écoute du client
+    depends_on:
+      - nats
+      - db
+    networks:
+      - main_network
+  # --------------------------------------------
 
   nginx:
     image: nginx:latest
@@ -69,10 +92,10 @@ services:
       - client
     networks:
       - main_network
+
 volumes:
   mariadb_data:
 
 networks:
   main_network:
     driver: bridge
-

@@ -10,47 +10,38 @@
     <header>
         <h1>Bienvenue sur votre espace, {{ client.username }}</h1>
     </header>
-    <p>ID Client : {{ client.id }}</p>
-    <a href="/app/{{ client.id }}/create/">
-        + Demander l'ouverture d'un compte
-    </a>
-    <h2>Mes Comptes Bancaires Validés</h2>
-    <table>
-        <thead>
-            <tr>
-                <th>Numéro de compte</th>
-                <th>Nom du compte</th>
-                <th>Solde</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
+    
+    <main>
+        <p>ID Client : {{ client.id }}</p>
+        
+        <p>
+            <a href="/app/{{ client.id }}/create/" class="btn-create">
+                + Demander l'ouverture d'un compte
+            </a>
+        </p>
+        
+        <h3>Mes Comptes Bancaires</h3>
+        <ul>
             {% for compte in comptes %}
-            <tr>
-                <td>{{ compte.numero_compte }}</td>
-                <td>{{ compte.nom }}</td>
-                <td>{{ compte.solde }} €</td>
-                <td>
-                    <a href="/app/{{ client.id }}/compte/{{ compte.id }}/">[Voir]</a>
-                    <a href="/app/{{ client.id }}/update/{{ compte.id }}/">[Modifier]</a>
-                    <a href="/app/{{ client.id }}/delete/{{ compte.id }}/">[Supprimer]</a>
-                    <form action="{% url 'delete_compte' client.id compte.id %}" method="POST" style="display:inline;">
-                        {% csrf_token %}
-                        <input type="hidden" name="_method" value="DELETE">
-                        <input type="hidden" name="motif" value="Clôture demandée par le client">
-                        <button type="submit" onclick="return confirm('Êtes-vous sûr de vouloir demander la suppression de ce compte ?');">
-                            [Supprimer]
-                        </button>
-                    </form>
-                </td>
-            </tr>
+                <li style="margin-bottom: 10px;">
+                    <strong>{{ compte.nom }}</strong> - Solde : {{ compte.solde }} € - Statut : 
+                    <span class="badge {% if compte.statut == 'EN_ATTENTE' %}text-warning{% elif compte.statut == 'ACCEPTE' %}text-success{% else %}text-danger{% endif %}">
+                        {{ compte.get_statut_display }}
+                    </span>
+
+                    {% if compte.statut == 'ACCEPTE' %}
+                        <span class="actions" style="margin-left: 15px;">
+                            <a href="/app/{{ client.id }}/update/{{ compte.id }}/" style="color: #0056b3; text-decoration: none; margin-right: 10px;">✏️ Modifier</a>
+                            <a href="/app/{{ client.id }}/delete/{{ compte.id }}/" style="color: #dc3545; text-decoration: none;">🗑️ Clôturer</a>
+                        </span>
+                    {% endif %}
+                </li>
             {% empty %}
-            <tr>
-                <td colspan="4">Vous n'avez aucun compte actif ou validé pour le moment.</td>
-            </tr>
+                <li>Aucun compte pour le moment.</li>
             {% endfor %}
-        </tbody>
-    </table>
+        </ul>
+    </main>
+
     <aside>
         <p>&copy; {{ now|date:"Y" }} MULLER Yoann et BRODIN Mathias. Tous droits réservés.</p>
     </aside>
