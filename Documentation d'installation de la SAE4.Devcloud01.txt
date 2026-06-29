@@ -1,0 +1,98 @@
+Documentation d'installation du projet multiservice de la sae4.Devcloud01 de Yoann MULLER et Mathias BRODIN
+
+
+1)Comment lancer le projet
+
+Sur Oracle VirtualBox ou vmware:
+Créer une machine virtuelle debian 13 avec 2 interfaces réseau:  1 en NAT et 1 interface en réseau privé hôte avec comme adresse 192.168.X.X/24
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+2) Installer le projet
+
+Installer docker-compose, Nginx
+pull le projet sur debian ou télécharger le et dézipper le projet
+Modifier les fichiers settings.py de chaque projet (client, auth et admin), dans les champs CRSRF_TRUSED_ORIGINS et ALLOWED_HOSTS (Tout en bas du fichier): Il faut modifier les http://192.168.178.13:8001, 8002 et 8003 par http://votre_adress_ip_privé_hôte:8001 8002 8003.
+Modifié dans le views.py de /auth/app/ modifier les return redirect('http://192.168.178.13:8001'), 8002 et 8003 par ('http://votre_adress_ip_privé_hôte:8001 8002 8003').
+IMPORTANT: suprimmer tout les pycaches dans les applications et dans les projets s'il y en a.
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+3)Construction du Docker-compose
+
+Retour dans le terminal:
+On va dans le dossier du projet
+On construit le projet avec la commande suivante: docker-compose up --build -d
+Après que la construction s'est finie il faut redémarrer tout les services avec la commande:
+docker-compose restart Nginx client client-worker admin admin-worker auth nats nginx
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+4)Base de données du projet Django
+
+INFO IMPORTANTE: Pour accéder à la base de donnée, il faut faut écricre la commande suivante: docker-compose exec db mariadb -u root -p. Avec comme mot de passe « toto »
+
+IMPORTANT: Si la base de données est encore pleine, il faut la reset avec la commande: sudo docker compose exec db mysql -u toto -ptoto -e "DROP DATABASE gestion_bancaire; CREATE DATABASE gestion_bancaire;"
+[S'il y a rien dans la base de données il faut faire les migrations de chaque services client, admin et auth (exemple avec auth),ATTENTION: Faire les migration dans cette ordre: 1er: auth, 2ème: client, 3ème: admin]
+
+IMPORTANT: Malheureusement il y a un problème avec la base de données si on fait les makemigrations de client et d'admin après celui de l'auth donc ce qu'il faut faire c'est:
+docker-compose exec auth python manage.py makemigrations
+docker-compose exec auth python manage.py migrate
+
+Ensuite il faut ajouter manuellement les tables avec la commande:
+
+sudo docker compose exec db mysql -u toto -ptoto gestion_bancaire -e "
+-- 1. CRÉATION DE LA TABLE USER (La grande absente)
+CREATE TABLE IF NOT EXISTS \`user\` (
+    \`id\` INT AUTO_INCREMENT PRIMARY KEY,
+    \`username\` VARCHAR(150) NOT NULL,
+    \`password\` VARCHAR(255) NOT NULL,
+    \`role\` VARCHAR(10) NOT NULL
+);
+
+-- 2. CRÉATION DES TABLES DU CLIENT
+CREATE TABLE IF NOT EXISTS \`compte\` (
+    \`id\` INT AUTO_INCREMENT PRIMARY KEY,
+    \`numero_compte\` VARCHAR(50) NOT NULL UNIQUE,
+    \`nom\` VARCHAR(100) NOT NULL,
+    \`solde\` NUMERIC(12, 2) NOT NULL,
+    \`statut\` VARCHAR(50) NOT NULL,
+    \`client_id\` INT NOT NULL,
+    FOREIGN KEY (\`client_id\`) REFERENCES \`user\` (\`id\`) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS \`operation\` (
+    \`id\` INT AUTO_INCREMENT PRIMARY KEY,
+    \`type_op\` VARCHAR(20) NOT NULL,
+    \`montant\` NUMERIC(12, 2) NOT NULL,
+    \`date_creation\` DATETIME(6) NOT NULL,
+    \`compte_destination_id\` INT NULL,
+    \`compte_source_id\` INT NOT NULL,
+    FOREIGN KEY (\`compte_destination_id\`) REFERENCES \`compte\` (\`id\`) ON DELETE CASCADE,
+    FOREIGN KEY (\`compte_source_id\`) REFERENCES \`compte\` (\`id\`) ON DELETE CASCADE
+);
+
+-- 3. CRÉATION DES TABLES DE L'ADMIN
+CREATE TABLE IF NOT EXISTS \`demande_compte\` (
+    \`id\` INT AUTO_INCREMENT PRIMARY KEY,
+    \`action\` VARCHAR(10) NOT NULL,
+    \`client_id\` INT NOT NULL,
+    \`data_payload\` JSON NOT NULL,
+    \`statut\` VARCHAR(20) NOT NULL,
+    \`date_creation\` DATETIME(6) NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS \`demande_operation\` (
+    \`id\` INT AUTO_INCREMENT PRIMARY KEY,
+    \`client_id\` INT NOT NULL,
+    \`statut\` VARCHAR(20) NOT NULL,
+    \`motif_refus\` LONGTEXT NULL,
+    \`operation_id\` INT NOT NULL,
+    FOREIGN KEY (\`operation_id\`) REFERENCES \`operation\` (\`id\`) ON DELETE CASCADE
+);
+"
+
+Après on restart tout les services
+docker-compose restart Nginx client client-worker admin admin-worker auth nats nginx
+
+Accès à la page d'authentification avec comme adresse http://adresse_de_privé_hôte:8001  
+
+Pour arrêter le projet: docker-compose down
+
