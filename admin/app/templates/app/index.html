@@ -8,18 +8,40 @@
 </head>
 <body>
     <header>
-        <h1>Liste des demandes clients en attente (via NATS)</h1>
+        <h1>Liste des demandes clients en attente</h1>
     </header>
     {% for demande in demandes %}
-        <div class="demande-card">
+        <div>
             <p>Utilisateur {{ demande.client_id }} - {{ demande.action }}</p>
             <p>Détails : {{ demande.data_payload }}</p>
             
-            <a href="/app/demande/accepter/{{ demande.id }}/" class="btn btn-success">Accepter</a>
-            <a href="/app/demande/refuser/{{ demande.id }}/" class="btn btn-danger">Refuser</a>
+            <a href="/app/demande/accepter/{{ demande.id }}/">Accepter</a>
+            <a href="/app/demande/refuser/{{ demande.id }}/">Refuser</a>
         </div>
     {% empty %}
         <p>Aucune demande pour le moment.</p>
+    {% endfor %}
+    <hr>
+    <h2>Liste des demandes d'opérations en attente</h2>
+    {% for d_op in demandes_op %}
+        <div>
+            <p>Client {{ d_op.client_id }} demande un {{ d_op.operation.type_op }}</p>
+            <p>Montant : {{ d_op.operation.montant }} €</p>
+            <p>Compte Source : {{ d_op.operation.compte_source.numero_compte }}</p>
+            {% if d_op.operation.compte_destination %}
+                <p>Compte Destination : {{ d_op.operation.compte_destination.numero_compte }}</p>
+            {% endif %}
+            <form action="/app/operation/accepter/{{ d_op.id }}/" method="POST">
+                {% csrf_token %}
+                <button type="submit">Accepter l'opération</button>
+            </form>
+            <form action="/app/operation/refuser/{{ d_op.id }}/" method="POST">
+                {% csrf_token %}
+                <button type="submit">Refuser l'opération</button>
+            </form>
+        </div>
+    {% empty %}
+        <p>Aucune demande d'opération financière en attente.</p>
     {% endfor %}
     <aside>
         <p>&copy; {{ now|date:"Y" }} MULLER Yoann et BRODIN Mathias. Tous droits réservés.</p>

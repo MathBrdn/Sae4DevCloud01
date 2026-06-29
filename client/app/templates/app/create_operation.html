@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    {% load static %}
+    <link rel="stylesheet" href="{% static '/app/style.css' %}">
+    <meta charset="UTF-8">
+    <title>Nouvelle Opération</title>
+</head>
+<body>
+    <header>
+        <h1>Effectuer une opération financière</h1>
+    </header>
+    
+    <main>
+        <form action="/app/{{ user_id }}/operation/create/" method="POST">
+            {% csrf_token %}
+            <p>
+                <label for="type_op">Type d'opération :</label>
+                <br>
+                <select name="type_op" id="type_op" required>
+                    <option value="DEPOT">Dépôt</option>
+                    <option value="RETRAIT">Retrait</option>
+                    <option value="VIREMENT">Virement Interbancaire</option>
+                </select>
+            </p>
+
+            <p>
+                <label for="montant">Montant (€) :</label><br>
+                <input type="number" name="montant" id="montant" step="0.01" min="0.01" required>
+            </p>
+
+            <p>
+                <label for="compte_source">Compte Source :</label><br>
+                <select name="compte_source" id="compte_source" required>
+                    {% for compte in comptes %}
+                        <option value="{{ compte.id }}">{{ compte.nom }} (Solde : {{ compte.solde }} €)</option>
+                    {% empty %}
+                        <option value="" disabled>Aucun compte accepté disponible</option>
+                    {% endfor %}
+                </select>
+            </p>
+
+            <p id="bloc_destination">
+                <label for="compte_destination">Compte Destination (Uniquement pour les virements) :</label>
+                <br>
+                <select name="compte_destination" id="compte_destination">
+                    <option value="">-- Choisir un compte destinataire --</option>
+                    {% for c_dest in tous_les_comptes %}
+                        <option value="{{ c_dest.id }}">N° {{ c_dest.numero_compte }} - {{ c_dest.nom }}</option>
+                    {% endfor %}
+                </select>
+            </p>
+
+            <p style="margin-top: 20px;">
+                <button type="submit" class="btn-create">
+                    Soumettre la demande d'opération
+                </button>
+                <a href="/app/{{ user_id }}/">Annuler</a>
+            </p>
+        </form>
+    </main>
+    <script>
+        const typeOp = document.getElementById('type_op');
+        const blocDest = document.getElementById('bloc_destination');
+        const compteDest = document.getElementById('compte_destination');
+        function toggleDestination() {
+            if (typeOp.value === 'VIREMENT') {
+                blocDest.style.display = 'block';
+                compteDest.required = true;
+            } else {
+                blocDest.style.display = 'none';
+                compteDest.required = false;
+                compteDest.value = '';
+            }
+        }
+        typeOp.addEventListener('change', toggleDestination);
+        window.addEventListener('DOMContentLoaded', toggleDestination); // Execute au chargement
+    </script>
+</body>
+</html>

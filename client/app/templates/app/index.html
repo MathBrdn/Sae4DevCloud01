@@ -8,42 +8,76 @@
 </head>
 <body>
     <header>
-        <h1>Bienvenue sur votre espace, {{ client.username }}</h1>
+        <h1>Bienvenue sur votre espace Client n°{{ client.id }}</h1>
     </header>
     
     <main>
         <p>ID Client : {{ client.id }}</p>
         
         <p>
-            <a href="/app/{{ client.id }}/create/" class="btn-create">
+            <a href="/app/{{ client.id }}/create/">
                 + Demander l'ouverture d'un compte
             </a>
+            <a href="/app/{{ client.id }}/operation/create/">
+                Effectuer un Dépôt / Retrait / Virement
+            </a>
         </p>
-        
         <h3>Mes Comptes Bancaires</h3>
         <ul>
             {% for compte in comptes %}
-                <li style="margin-bottom: 10px;">
-                    <strong>{{ compte.nom }}</strong> - Solde : {{ compte.solde }} € - Statut : 
-                    <span class="badge {% if compte.statut == 'EN_ATTENTE' %}text-warning{% elif compte.statut == 'ACCEPTE' %}text-success{% else %}text-danger{% endif %}">
-                        {{ compte.get_statut_display }}
-                    </span>
+                <li>
+                    {{ compte.nom }} (N° {{ compte.numero_compte }}) - Solde : {{ compte.solde }} € - Statut : {{ compte.statut}} 
+                    {{ compte.statut }}
 
                     {% if compte.statut == 'ACCEPTE' %}
-                        <span class="actions" style="margin-left: 15px;">
-                            <a href="/app/{{ client.id }}/update/{{ compte.id }}/" style="color: #0056b3; text-decoration: none; margin-right: 10px;">✏️ Modifier</a>
-                            <a href="/app/{{ client.id }}/delete/{{ compte.id }}/" style="color: #dc3545; text-decoration: none;">🗑️ Clôturer</a>
-                        </span>
+                        <a href="/app/{{ client.id }}/update/{{ compte.id }}/"> Modifier</a>
+                        <a href="/app/{{ client.id }}/delete/{{ compte.id }}/"> Clôturer</a>
                     {% endif %}
                 </li>
             {% empty %}
                 <li>Aucun compte pour le moment.</li>
             {% endfor %}
         </ul>
+        <hr>
+        <h3>Historique de mes opérations bancaires</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Type</th>
+                    <th>Montant</th>
+                    <th>Compte Source</th>
+                    <th>Compte Destination</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for op in operations %}
+                    <tr>
+                        <td>{{ op.date_creation|date:"d/m/Y H:i" }}</td>
+                        <td>{{ op.get_type_op_display }}</td>
+                        <td>
+                            {% if op.type_op == 'DEPOT' %}+{% else %}-{% endif %} {{ op.montant }} €
+                        </td>
+                        <td>{{ op.compte_source.nom }} (N° {{ op.compte_source.numero_compte }})</td>
+                        <td>
+                            {% if op.compte_destination %}
+                                {{ op.compte_destination.nom }} (N° {{ op.compte_destination.numero_compte }})
+                            {% else %}
+                                -
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td>Aucune opération enregistrée pour le moment.</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
     </main>
 
     <aside>
-        <p>&copy; {{ now|date:"Y" }} MULLER Yoann et BRODIN Mathias. Tous droits réservés.</p>
+        <p>&copy; 2026 MULLER Yoann et BRODIN Mathias. Tous droits réservés.</p>
     </aside>
 </body>
 </html>

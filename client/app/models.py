@@ -45,3 +45,40 @@ class Operation(models.Model):
     class Meta:
         db_table = 'operation' 
         managed = True 
+
+class DemandeCompte(models.Model):
+    TYPE_ACTION = [
+        ('CREATE', 'Création'),
+        ('UPDATE', 'Modification'),
+        ('DELETE', 'Suppression'),
+    ]
+    STATUT_CHOICES = [
+        ('EN_ATTENTE', 'En attente'),
+        ('ACCEPTE', 'Accepté'),
+        ('REFUSE', 'Refusé'),
+    ]
+    action = models.CharField(max_length=10, choices=TYPE_ACTION)
+    client_id = models.IntegerField()
+    data_payload = models.JSONField() 
+    statut = models.CharField(max_length=20, choices=STATUT_CHOICES, default='EN_ATTENTE')
+    date_creation = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'demande_compte'
+        managed = False 
+
+
+class DemandeOperation(models.Model):
+    STATUT_CHOICES = [
+        ('EN_ATTENTE', 'En attente'),
+        ('ACCEPTE', 'Accepté'),
+        ('REFUSE', 'Refusé'),
+    ]
+    operation = models.ForeignKey(Operation, on_delete=models.CASCADE)
+    client_id = models.IntegerField()
+    statut = models.CharField(max_length=20, choices=STATUT_CHOICES, default='EN_ATTENTE')
+    motif_refus = models.TextField(null=True, blank=True)
+
+    class Meta:
+        db_table = 'demande_operation'
+        managed = False
