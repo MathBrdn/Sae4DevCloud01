@@ -5,7 +5,6 @@ class User(models.Model):
     username = models.CharField(max_length=150)
     password = models.CharField(max_length=255)
     role = models.CharField(max_length=10)
-    
     class Meta:
         db_table = 'user'
         managed = False
@@ -17,7 +16,6 @@ class Compte(models.Model):
     solde = models.DecimalField(max_digits=12, decimal_places=2, default=0)
     statut = models.CharField(max_length=50, default="EN_ATTENTE")
     client = models.ForeignKey(User, on_delete=models.CASCADE)
-    
     class Meta:
         db_table = 'compte'
         managed = False 
@@ -38,17 +36,14 @@ class DemandeCompte(models.Model):
     data_payload = models.JSONField() 
     statut = models.CharField(max_length=20, choices=STATUT_CHOICES, default='EN_ATTENTE')
     date_creation = models.DateTimeField(auto_now_add=True)
-
     class Meta:
         db_table = 'demande_compte'
         managed = True 
-
     def __str__(self):
         return f"{self.action} - Client {self.client_id} [{self.statut}]"
 
 class Operation(models.Model):
     id = models.AutoField(primary_key=True)
-    
     TYPE_CHOICES = [
         ('DEPOT', 'Dépôt'),
         ('RETRAIT', 'Retrait'),
@@ -59,7 +54,6 @@ class Operation(models.Model):
     date_creation = models.DateTimeField(auto_now_add=True)
     compte_source = models.ForeignKey(Compte, on_delete=models.CASCADE, related_name='operations_sortantes')
     compte_destination = models.ForeignKey(Compte, on_delete=models.CASCADE, null=True, blank=True, related_name='operations_entrantes')
-
     class Meta:
         db_table = 'operation' 
         managed = False 
@@ -74,7 +68,6 @@ class DemandeOperation(models.Model):
     client_id = models.IntegerField()
     statut = models.CharField(max_length=20, choices=STATUT_CHOICES, default='EN_ATTENTE')
     motif_refus = models.TextField(null=True, blank=True)
-
     class Meta:
         db_table = 'demande_operation'
         managed = True

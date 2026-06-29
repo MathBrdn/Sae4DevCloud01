@@ -50,13 +50,14 @@
                     {% endfor %}
                 </select>
             </p>
-
-            <p style="margin-top: 20px;">
+            <p>
                 <button type="submit" class="btn-create">
                     Soumettre la demande d'opération
                 </button>
-                <a href="/app/{{ user_id }}/">Annuler</a>
             </p>
+        </form>
+        <form method="get" action="/app/{{ user_id }}/">
+            <button type="submit">Annuler</button>
         </form>
     </main>
     <script>
@@ -74,7 +75,7 @@
             }
         }
         typeOp.addEventListener('change', toggleDestination);
-        window.addEventListener('DOMContentLoaded', toggleDestination); // Execute au chargement
+        window.addEventListener('DOMContentLoaded', toggleDestination);
     </script>
 </body>
 </html>

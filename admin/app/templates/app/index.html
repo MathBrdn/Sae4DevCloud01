@@ -4,19 +4,27 @@
     {% load static %}
     <link rel="stylesheet" href="{% static '/app/style.css' %}">
     <meta charset="UTF-8">
-    <title>Bienvenue</title>
+    <title>Bienvenue - Admin</title>
 </head>
 <body>
     <header>
         <h1>Liste des demandes clients en attente</h1>
+        <form method="get" action="http://192.168.178.13:8001">
+            <button type="submit">Se déconnecter</button>
+        </form>
     </header>
+    
     {% for demande in demandes %}
         <div>
             <p>Utilisateur {{ demande.client_id }} - {{ demande.action }}</p>
             <p>Détails : {{ demande.data_payload }}</p>
             
-            <a href="/app/demande/accepter/{{ demande.id }}/">Accepter</a>
-            <a href="/app/demande/refuser/{{ demande.id }}/">Refuser</a>
+            <form method="get" action="/app/demande/accepter/{{ demande.id }}/">
+                <button type="submit">Accepter</button>
+            </form>
+            <form method="get" action="/app/demande/refuser/{{ demande.id }}/">
+                <button type="submit">Refuser</button>
+            </form>
         </div>
     {% empty %}
         <p>Aucune demande pour le moment.</p>

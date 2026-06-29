@@ -1,11 +1,10 @@
 import asyncio
 import json
 from django.core.management.base import BaseCommand
-from asgiref.sync import sync_to_async  # <-- Bien présent
+from asgiref.sync import sync_to_async
 from nats.aio.client import Client as NATS
 from app.models import DemandeCompte 
 
-# On crée la fonction de sauvegarde en dehors pour être 100% sûr que Django l'isole
 @sync_to_async
 def save_demande(data):
     return DemandeCompte.objects.create(
@@ -33,15 +32,10 @@ class Command(BaseCommand):
             try:
                 data = json.loads(msg.data.decode())
                 self.stdout.write(f"Message reçu de NATS : {data}")
-
-                # Appel de la fonction décorée avec "await"
                 await save_demande(data)
-                
                 self.stdout.write(self.style.SUCCESS(f"Demande [{data.get('action')}] enregistrée !"))
             except Exception as e:
                 self.stdout.write(self.style.ERROR(f"Erreur lors du traitement : {e}"))
-
         await nc.subscribe("admin.alerts", cb=message_handler)
-
         while True:
             await asyncio.sleep(1)

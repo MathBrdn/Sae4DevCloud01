@@ -36,7 +36,11 @@
         <br>
         <button type="submit">S'inscrire</button>
     </form>
-    <p>Déjà un compte ? <a href="/app/login">Connectez-vous ici</a>.</p>
+    <p>Déjà un compte ? 
+        <form method="get" action="/app/login" style="display: inline;">
+            <button type="submit">Connectez-vous ici</button>
+        </form>
+    </p>
     <aside>
         <p>&copy; {{ now|date:"Y" }} MULLER Yoann et BRODIN Mathias. Tous droits réservés.</p>
     </aside>

@@ -1,4 +1,4 @@
-!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="fr">
 <head>
     {% load static %}
@@ -11,13 +11,15 @@
         <h1>Créer un nouveau compte bancaire</h1>
     </header>
     <p>Remplissez ce formulaire pour envoyer une demande de création à l'administrateur.</p>
-    <form action="/app/{{ user_id }}/create/" method="POST" method="POST">
+    <form action="/app/{{ user_id }}/create/" method="POST">
         {% csrf_token %}
         {{ form.as_p }}
         <button type="submit">Envoyer la demande de création</button>
     </form>
     <br>
-    <a href="/app/{{ user_id }}/">Retour à mon espace</a>
+    <form method="get" action="/app/{{ user_id }}/">
+        <button type="submit">Retour à mon espace</button>
+    </form>
     <aside>
         <p>&copy; {{ now|date:"Y" }} MULLER Yoann et BRODIN Mathias. Tous droits réservés.</p>
     </aside>

@@ -10,12 +10,12 @@
     <header>
         <h1>Bienvenue</h1>
     </header>
-    <form method="get" action="/app/" style="display: inline;">
+    <form method="get" action="/app/">
         <button type="submit"><h2>Retour</h2></button>
     </form>
     <h2>Connexion</h2>
     {% if error %}
-        <p style="color: red;"><strong>Erreur :</strong> {{ error }}</p>
+        <p>Erreur : {{ error }}</p>
     {% endif %}
     <form method="POST">
         {% csrf_token %}
@@ -31,7 +31,11 @@
         <br>
         <button type="submit">Se connecter</button>
     </form>
-    <p>Pas encore de compte ? <a href="/app/inscription">Inscrivez-vous ici</a>.</p>
+    <p>Pas encore de compte ? 
+        <form method="get" action="/app/inscription">
+            <button type="submit">Inscrivez-vous ici</button>
+        </form>
+    </p>
     <aside>
         <p>&copy; {{ now|date:"Y" }} MULLER Yoann et BRODIN Mathias. Tous droits réservés.</p>
     </aside>

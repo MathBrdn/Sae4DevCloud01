@@ -1,4 +1,4 @@
-!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="fr">
 <head>
     {% load static %}
@@ -18,7 +18,9 @@
         <button type="submit">Demander la modification</button>
     </form>
     <br>
-    <a href="/app/{{ user_id }}/">Annuler et retourner à mon espace</a>
+    <form method="get" action="/app/{{ user_id }}/">
+        <button type="submit">Annuler et retourner à mon espace</button>
+    </form>
     <aside>
         <p>&copy; {{ now|date:"Y" }} MULLER Yoann et BRODIN Mathias. Tous droits réservés.</p>
     </aside>

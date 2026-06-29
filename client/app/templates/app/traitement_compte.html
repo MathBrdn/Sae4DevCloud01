@@ -1,4 +1,4 @@
-!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="fr">
 <head>
     {% load static %}
@@ -11,13 +11,15 @@
         <h1>Détails du compte n°{{ compte.id }}</h1>
     </header>
     <ul>
-        <li><strong>Numéro de compte :</strong> {{ compte.numero_compte }}</li>
-        <li><strong>Nom du compte :</strong> {{ compte.nom }}</li>
-        <li><strong>Solde actuel :</strong> {{ compte.solde }} €</li>
-        <li><strong>Statut de validation :</strong> {{ compte.statut }}</li>
+        <li>Numéro de compte : {{ compte.numero_compte }}</li>
+        <li>Nom du compte : {{ compte.nom }}</li>
+        <li>Solde actuel : {{ compte.solde }} €</li>
+        <li>Statut de validation : {{ compte.statut }}</li>
     </ul>
     <nav>
-        <a href="/app/{{ compte.client.id }}/">Retour à mon espace</a>
+        <form method="get" action="/app/{{ compte.client_id }}/">
+            <button type="submit">Retour à mon espace</button>
+        </form>
     </nav>
     <aside>
         <p>&copy; {{ now|date:"Y" }} MULLER Yoann et BRODIN Mathias. Tous droits réservés.</p>

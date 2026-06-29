@@ -64,19 +64,17 @@ services:
     networks:
       - main_network
 
-  # --- LE WORKER NATS DU CLIENT AJOUTÉ ICI ---
   client-worker:
     build:
-      context: ./client  # Utilise le dossier et le Dockerfile du client
+      context: ./client 
       dockerfile: Dockerfile
     restart: always
-    command: python manage.py listen_nats  # Lance la commande d'écoute du client
+    command: python manage.py listen_nats  
     depends_on:
       - nats
       - db
     networks:
       - main_network
-  # --------------------------------------------
 
   nginx:
     image: nginx:latest

@@ -2,9 +2,6 @@ import asyncio
 import nats
 import json
 
-# =====================================================================
-# 1. GESTION DES COMPTES (Déjà existant)
-# =====================================================================
 async def publier_decision_nats(user_id, action_type, statut_decision):
     """
     Envoie un message standardisé sur le sujet NATS 'client.updates'
@@ -12,11 +9,10 @@ async def publier_decision_nats(user_id, action_type, statut_decision):
     """
     try:
         nc = await nats.connect("nats://nats:4222")
-        
         payload = {
             'user_id': user_id,
-            'action': action_type,       # 'CREATE', 'UPDATE', ou 'DELETE'
-            'statut': statut_decision    # 'ACCEPTE' ou 'REFUSE'
+            'action': action_type,
+            'statut': statut_decision
         }
         
         await nc.publish("client.updates", json.dumps(payload).encode('utf-8'))
@@ -31,24 +27,17 @@ def notifier_client(user_id, action_type, statut_decision):
     """
     asyncio.run(publier_decision_nats(user_id, action_type, statut_decision))
 
-
-# =====================================================================
-# 2. 🚀 AJOUT : GESTION DES OPÉRATIONS BANCAIRES (Dépôts, Retraits, Virements)
-# =====================================================================
 async def publier_decision_operation_nats(client_id, operation_id, statut_decision):
     """
     Envoie un message sur le sujet NATS 'client.operations'
     pour informer le client-worker de la validation/refus d'une opération financière.
     """
     try:
-        # Connexion à NATS
         nc = await nats.connect("nats://nats:4222")
-        
-        # Payload attendu pour mettre à jour le solde et la demande côté client
         payload = {
             'client_id': client_id,
             'operation_id': operation_id,
-            'statut': statut_decision  # 'ACCEPTE' ou 'REFUSE'
+            'statut': statut_decision
         }
         
         # Envoi sur le canal dédié aux opérations

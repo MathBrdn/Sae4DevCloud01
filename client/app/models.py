@@ -2,18 +2,15 @@ from django.db import models
 
 class User(models.Model):
     id = models.AutoField(primary_key=True) 
-    
     class Role(models.TextChoices):
         ADMIN = "Admin", "Admin"
         CLIENT = "Client", "Client"
     username = models.CharField(max_length=150)
     password = models.CharField(max_length=255)
     role = models.CharField(max_length=10, choices=Role.choices, default=Role.CLIENT)
-    
     class Meta:
         db_table = 'user'
         managed = False 
-
 
 class Compte(models.Model):
     id = models.AutoField(primary_key=True)
@@ -22,15 +19,12 @@ class Compte(models.Model):
     solde = models.DecimalField(max_digits=12, decimal_places=2, default=0)
     statut = models.CharField(max_length=50, default="EN_ATTENTE")
     client = models.ForeignKey(User, on_delete=models.CASCADE)
-    
     class Meta:
         db_table = 'compte'
         managed = True 
 
-
 class Operation(models.Model):
     id = models.AutoField(primary_key=True)
-    
     TYPE_CHOICES = [
         ('DEPOT', 'Dépôt'),
         ('RETRAIT', 'Retrait'),
@@ -41,7 +35,6 @@ class Operation(models.Model):
     date_creation = models.DateTimeField(auto_now_add=True)
     compte_source = models.ForeignKey(Compte, on_delete=models.CASCADE, related_name='operations_sortantes')
     compte_destination = models.ForeignKey(Compte, on_delete=models.CASCADE, null=True, blank=True, related_name='operations_entrantes')
-
     class Meta:
         db_table = 'operation' 
         managed = True 
@@ -62,7 +55,6 @@ class DemandeCompte(models.Model):
     data_payload = models.JSONField() 
     statut = models.CharField(max_length=20, choices=STATUT_CHOICES, default='EN_ATTENTE')
     date_creation = models.DateTimeField(auto_now_add=True)
-
     class Meta:
         db_table = 'demande_compte'
         managed = False 
@@ -78,7 +70,6 @@ class DemandeOperation(models.Model):
     client_id = models.IntegerField()
     statut = models.CharField(max_length=20, choices=STATUT_CHOICES, default='EN_ATTENTE')
     motif_refus = models.TextField(null=True, blank=True)
-
     class Meta:
         db_table = 'demande_operation'
         managed = False

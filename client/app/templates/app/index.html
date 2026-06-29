@@ -9,29 +9,35 @@
 <body>
     <header>
         <h1>Bienvenue sur votre espace Client n°{{ client.id }}</h1>
+        <form method="get" action="http://192.168.178.13:8001">
+            <button type="submit">Se déconnecter</button>
+        </form>
     </header>
     
     <main>
         <p>ID Client : {{ client.id }}</p>
         
         <p>
-            <a href="/app/{{ client.id }}/create/">
-                + Demander l'ouverture d'un compte
-            </a>
-            <a href="/app/{{ client.id }}/operation/create/">
-                Effectuer un Dépôt / Retrait / Virement
-            </a>
+            <form method="get" action="/app/{{ client.id }}/create/">
+                <button type="submit">+ Demander l'ouverture d'un compte</button>
+            </form>
+            <form method="get" action="/app/{{ client.id }}/operation/create/">
+                <button type="submit">Effectuer un Dépôt / Retrait / Virement</button>
+            </form>
         </p>
         <h3>Mes Comptes Bancaires</h3>
         <ul>
             {% for compte in comptes %}
                 <li>
-                    {{ compte.nom }} (N° {{ compte.numero_compte }}) - Solde : {{ compte.solde }} € - Statut : {{ compte.statut}} 
-                    {{ compte.statut }}
+                    {{ compte.nom }} (N° {{ compte.numero_compte }}) - Solde : {{ compte.solde }} € - Statut : {{ compte.statut }}
 
                     {% if compte.statut == 'ACCEPTE' %}
-                        <a href="/app/{{ client.id }}/update/{{ compte.id }}/"> Modifier</a>
-                        <a href="/app/{{ client.id }}/delete/{{ compte.id }}/"> Clôturer</a>
+                        <form method="get" action="/app/{{ client.id }}/update/{{ compte.id }}/">
+                            <button type="submit">Modifier</button>
+                        </form>
+                        <form method="get" action="/app/{{ client.id }}/delete/{{ compte.id }}/">
+                            <button type="submit">Clôturer</button>
+                        </form>
                     {% endif %}
                 </li>
             {% empty %}
@@ -75,7 +81,6 @@
             </tbody>
         </table>
     </main>
-
     <aside>
         <p>&copy; 2026 MULLER Yoann et BRODIN Mathias. Tous droits réservés.</p>
     </aside>
