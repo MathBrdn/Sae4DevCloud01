@@ -59,3 +59,27 @@ class Command(BaseCommand):
 
         while True:
             await asyncio.sleep(1)
+
+# Dans le listen_nats.py du client-worker :
+@sync_to_async
+def traiter_retour_operation(data):
+    op_id = data.get('operation_id')
+    statut_admin = data.get('statut') # 'ACCEPTE' ou 'REFUSE'
+    
+    demande = DemandeOperation.objects.filter(operation_id=op_id, statut='EN_ATTENTE').first()
+    if demande:
+        demande.statut = statut_admin
+        demande.save()
+        
+        if statut_admin == 'ACCEPTE':
+            op = demande.operation
+            if op.type_op == 'DEPOT':
+                op.compte_source.solde += op.montant
+            elif op.type_op == 'RETRAIT':
+                op.compte_source.solde -= op.montant
+            elif op.type_op == 'VIREMENT':
+                op.compte_source.solde -= op.montant
+                op.compte_destination.solde += op.montant
+            op.compte_source.save()
+            if op.compte_destination:
+                op.compte_destination.save()

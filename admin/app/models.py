@@ -1,14 +1,26 @@
 from django.db import models
 
+class User(models.Model):
+    id = models.AutoField(primary_key=True)
+    username = models.CharField(max_length=150)
+    password = models.CharField(max_length=255)
+    role = models.CharField(max_length=10)
+    
+    class Meta:
+        db_table = 'user'
+        managed = False
+
 class Compte(models.Model):
+    id = models.AutoField(primary_key=True)
     numero_compte = models.CharField(max_length=50, unique=True)
     nom = models.CharField(max_length=100, default="Compte sans nom")
     solde = models.DecimalField(max_digits=12, decimal_places=2, default=0)
     statut = models.CharField(max_length=50, default="EN_ATTENTE")
-    client = models.ForeignKey("auth.User", on_delete=models.CASCADE)
+    client = models.ForeignKey(User, on_delete=models.CASCADE)
+    
     class Meta:
         db_table = 'compte'
-        managed = False
+        managed = False 
 
 class DemandeCompte(models.Model):
     TYPE_ACTION = [
@@ -16,22 +28,53 @@ class DemandeCompte(models.Model):
         ('UPDATE', 'Modification'),
         ('DELETE', 'Suppression'),
     ]
-    
     STATUT_CHOICES = [
         ('EN_ATTENTE', 'En attente'),
         ('ACCEPTE', 'Accepté'),
         ('REFUSE', 'Refusé'),
     ]
-
     action = models.CharField(max_length=10, choices=TYPE_ACTION)
     client_id = models.IntegerField()
     data_payload = models.JSONField() 
-    # Remplacement de traite par statut
     statut = models.CharField(max_length=20, choices=STATUT_CHOICES, default='EN_ATTENTE')
     date_creation = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        db_table = 'demande_compte'  # <-- On force le nom de la table ici
+        db_table = 'demande_compte'
+        managed = True 
 
     def __str__(self):
         return f"{self.action} - Client {self.client_id} [{self.statut}]"
+
+class Operation(models.Model):
+    id = models.AutoField(primary_key=True)
+    
+    TYPE_CHOICES = [
+        ('DEPOT', 'Dépôt'),
+        ('RETRAIT', 'Retrait'),
+        ('VIREMENT', 'Virement'),
+    ]
+    type_op = models.CharField(max_length=20, choices=TYPE_CHOICES)
+    montant = models.DecimalField(max_digits=12, decimal_places=2)
+    date_creation = models.DateTimeField(auto_now_add=True)
+    compte_source = models.ForeignKey(Compte, on_delete=models.CASCADE, related_name='operations_sortantes')
+    compte_destination = models.ForeignKey(Compte, on_delete=models.CASCADE, null=True, blank=True, related_name='operations_entrantes')
+
+    class Meta:
+        db_table = 'operation' 
+        managed = False 
+
+class DemandeOperation(models.Model):
+    STATUT_CHOICES = [
+        ('EN_ATTENTE', 'En attente'),
+        ('ACCEPTE', 'Accepté'),
+        ('REFUSE', 'Refusé'),
+    ]
+    operation = models.ForeignKey(Operation, on_delete=models.CASCADE)
+    client_id = models.IntegerField()
+    statut = models.CharField(max_length=20, choices=STATUT_CHOICES, default='EN_ATTENTE')
+    motif_refus = models.TextField(null=True, blank=True)
+
+    class Meta:
+        db_table = 'demande_operation'
+        managed = True

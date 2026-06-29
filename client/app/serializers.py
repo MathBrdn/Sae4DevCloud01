@@ -10,3 +10,11 @@ class CompteNatsSerializer(serializers.ModelSerializer):
         if value < 0:
             raise serializers.ValidationError("Le solde initial ne peut pas être négatif.")
         return value
+
+class OperationNatsSerializer(serializers.Serializer):
+    operation_id = serializers.IntegerField()
+    client_id = serializers.IntegerField()
+    type_op = serializers.CharField(max_length=20)
+    montant = serializers.FloatField()
+    compte_source_id = serializers.IntegerField()
+    compte_destination_id = serializers.IntegerField(required=False, allow_null=True)
